@@ -54,8 +54,7 @@ export function MobileStickyCTA() {
         className="pointer-events-auto"
       >
         <Link href="#sell-now">
-          <Button className="w-full h-14 shadow-2xl text-lg font-bold gap-3 rounded-2xl bg-primary text-white">
-            <PhoneCall className="w-5 h-5 fill-current" />
+          <Button className="w-full h-14 shadow-2xl text-lg font-bold rounded-2xl bg-primary text-white">
             Sell Scrap Now (WhatsApp)
           </Button>
         </Link>
