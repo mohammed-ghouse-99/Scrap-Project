@@ -39,8 +39,8 @@ export function Hero() {
       />
       
       {/* Glowing Neon Blobs */}
-      <div className="absolute top-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-      <div className="absolute -bottom-20 left-10 w-80 h-80 bg-teal-500/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute top-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none hidden md:block" />
+      <div className="absolute -bottom-20 left-10 w-80 h-80 bg-teal-500/10 rounded-full blur-[80px] pointer-events-none hidden md:block" />
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">

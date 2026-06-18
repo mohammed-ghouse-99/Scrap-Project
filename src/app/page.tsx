@@ -5,7 +5,7 @@ import { Categories } from "@/components/sections/Categories";
 import { Pricing } from "@/components/sections/Pricing";
 import { LeadForm } from "@/components/sections/LeadForm";
 import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
-import { FinalCTA, MobileStickyCTA } from "@/components/sections/FinalCTA";
+import { FinalCTA } from "@/components/sections/FinalCTA";
 import { CommercialSectors } from "@/components/sections/CommercialSectors";
 import { Reviews } from "@/components/sections/Reviews";
 
@@ -41,7 +41,6 @@ export default function Home() {
       </main>
 
       <Footer />
-      <MobileStickyCTA />
     </div>
   );
 }

@@ -44,21 +44,3 @@ export function FinalCTA() {
   );
 }
 
-export function MobileStickyCTA() {
-  return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 z-50 md:hidden pointer-events-none">
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        className="pointer-events-auto"
-      >
-        <Link href="#sell-now">
-          <Button className="w-full h-14 shadow-2xl text-lg font-bold rounded-2xl bg-primary text-white">
-            Sell Scrap Now (WhatsApp)
-          </Button>
-        </Link>
-      </motion.div>
-    </div>
-  );
-}

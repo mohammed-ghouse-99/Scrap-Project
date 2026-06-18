@@ -297,7 +297,7 @@ export function Pricing() {
              Call for Quote <ArrowRight size={16} />
           </button>
           
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 hidden md:block" />
         </div>
 
       </div>
