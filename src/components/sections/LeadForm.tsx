@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { formatWhatsAppLink } from "@/lib/utils";
@@ -12,6 +12,35 @@ const WEIGHT_OPTIONS = [
   { value: "30kg - 150kg", label: "Medium (30-150kg)", desc: "e.g., washing machine, fridge, AC" },
   { value: "Above 150kg", label: "Bulk (>150kg)", desc: "e.g., warehouse scrap, office dismantle" },
 ];
+
+const SCRAP_ITEMS_BY_CATEGORY = {
+  "Appliances": [
+    "Washing Machine",
+    "Single Door Fridge",
+    "Double Door Fridge",
+    "Microwave",
+    "Ceiling Fan / Motor",
+    "AC / Air Conditioner"
+  ],
+  "Metals": [
+    "Heavy Iron",
+    "Lightweight Iron",
+    "Copper",
+    "Aluminium",
+    "Brass"
+  ],
+  "Paper & Plastics": [
+    "Newspaper",
+    "Books",
+    "Cardboard",
+    "Plastic"
+  ],
+  "Electronics & Batteries": [
+    "UPS",
+    "DVD / E-Waste",
+    "Battery (Inverters)"
+  ]
+};
 
 export function LeadForm() {
   const [formData, setFormData] = useState({
@@ -27,6 +56,43 @@ export function LeadForm() {
     phone: "",
     location: "",
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [customItem, setCustomItem] = useState("");
+
+  const handleOpenModal = () => {
+    const currentItems = formData.type
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "");
+    setSelectedItems(currentItems);
+    setIsModalOpen(true);
+  };
+
+  const toggleItem = (item: string) => {
+    if (selectedItems.includes(item)) {
+      setSelectedItems(selectedItems.filter((i) => i !== item));
+    } else {
+      setSelectedItems([...selectedItems, item]);
+    }
+  };
+
+  const addCustomItem = () => {
+    const trimmed = customItem.trim();
+    if (trimmed !== "" && !selectedItems.includes(trimmed)) {
+      setSelectedItems([...selectedItems, trimmed]);
+      setCustomItem("");
+    }
+  };
+
+  const confirmSelection = () => {
+    setFormData({
+      ...formData,
+      type: selectedItems.join(", ")
+    });
+    setIsModalOpen(false);
+  };
 
   const validateForm = () => {
     let isValid = true;
@@ -187,15 +253,22 @@ export function LeadForm() {
                 {/* Scrap Type */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Scrap Type</label>
-                  <div className="relative">
-                    <Package className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+                  <div className="relative flex items-center">
+                    <Package className="absolute left-3.5 text-zinc-400 w-4 h-4" />
                     <Input 
                       required
                       placeholder="e.g. Newspaper, Metal" 
                       value={formData.type}
                       onChange={(e) => setFormData({...formData, type: e.target.value})}
-                      className="pl-10 border-zinc-200 focus-visible:ring-emerald-500"
+                      className="pl-10 pr-20 border-zinc-200 focus-visible:ring-emerald-500 w-full"
                     />
+                    <button
+                      type="button"
+                      onClick={handleOpenModal}
+                      className="absolute right-2 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-250 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                    >
+                      Select
+                    </button>
                   </div>
                 </div>
 
@@ -264,6 +337,147 @@ export function LeadForm() {
           </div>
         </div>
       </div>
+
+      {/* Scrap Type Selector Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-[2rem] border border-zinc-100 shadow-2xl w-full max-w-2xl overflow-hidden relative z-10 flex flex-col max-h-[85vh]"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-black text-zinc-900 tracking-tight flex items-center gap-2">
+                    <Package className="w-5 h-5 text-emerald-600" />
+                    Select Scrap Items
+                  </h3>
+                  <p className="text-zinc-500 text-xs mt-0.5">Select all materials you wish to sell</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-zinc-650 flex items-center justify-center transition-colors cursor-pointer text-xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Scrollable Grid Contents */}
+              <div className="p-6 overflow-y-auto space-y-6 flex-grow">
+                {Object.entries(SCRAP_ITEMS_BY_CATEGORY).map(([category, items]) => (
+                  <div key={category} className="space-y-2.5">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{category}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {items.map((item) => {
+                        const isSelected = selectedItems.includes(item);
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => toggleItem(item)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                              isSelected
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm"
+                                : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Custom Item Entry */}
+                <div className="pt-4 border-t border-zinc-100 space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Other (If not in list)</h4>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Type custom scrap item..."
+                      value={customItem}
+                      onChange={(e) => setCustomItem(e.target.value)}
+                      className="border-zinc-200 focus-visible:ring-emerald-500 h-10"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCustomItem();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomItem}
+                      className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {/* Selected items indicator chips */}
+                  {selectedItems.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-zinc-100">
+                      <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 w-full mb-1">Selected Chips</span>
+                      {selectedItems.map((item) => (
+                        <span
+                          key={item}
+                          className="px-2.5 py-1 bg-zinc-100 text-zinc-700 rounded-lg text-[10px] font-bold flex items-center gap-1.5"
+                        >
+                          {item}
+                          <button
+                            type="button"
+                            onClick={() => toggleItem(item)}
+                            className="text-zinc-400 hover:text-zinc-600 font-extrabold cursor-pointer"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                <span className="text-xs text-zinc-500 font-semibold">
+                  {selectedItems.length} {selectedItems.length === 1 ? "item" : "items"} selected
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItems([])}
+                    className="px-4 py-2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-600 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmSelection}
+                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-colors shadow-md shadow-emerald-500/10 cursor-pointer"
+                  >
+                    Apply Selection
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
