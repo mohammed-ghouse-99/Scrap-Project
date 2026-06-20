@@ -20,14 +20,18 @@ model ScrapRate {
 }
 
 model Pickup {
-  id        String   @id @default(cuid())
-  name      String
-  type      String   // Scrap type
-  location  String   // Area in Hyderabad
-  weight    String   // Approx weight
-  status    String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  name       String
+  phone      String    @default("") // Customer contact number
+  type       String    // Scrap type
+  location   String    // Area in Hyderabad
+  weight     String    // Approx weight
+  status     String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  rating     Int?      // 1-5 star review rating
+  feedback   String?   // Optional customer text feedback
+  feedbackAt DateTime? // Feedback timestamp
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([status])
   @@index([createdAt])

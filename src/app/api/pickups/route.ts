@@ -18,11 +18,14 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, type, location, weight } = body;
+    const { name, phone, type, location, weight } = body;
 
     // Strict Input Validation
     if (!name || typeof name !== "string" || name.trim() === "") {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+    if (!phone || typeof phone !== "string" || phone.trim() === "") {
+      return NextResponse.json({ error: "Phone is required" }, { status: 400 });
     }
     if (!type || typeof type !== "string" || type.trim() === "") {
       return NextResponse.json({ error: "Scrap Type is required" }, { status: 400 });
@@ -38,6 +41,7 @@ export async function POST(request: Request) {
     const pickup = await db.pickup.create({
       data: {
         name: name.trim(),
+        phone: phone.trim(),
         type: type.trim(),
         location: location.trim(),
         weight: weight.trim(),

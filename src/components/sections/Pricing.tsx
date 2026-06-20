@@ -23,12 +23,7 @@ interface ScrapRate {
   image: string | null;
 }
 
-const TRUST_BADGES = [
-  { icon: Scale, label: "Digital Weighing", desc: "Precision certified scales" },
-  { icon: Wallet, label: "Instant Payment", desc: "Cash or digital transfer" },
-  { icon: Truck, label: "Doorstep Pickup", desc: "Hassle-free collection" },
-  { icon: ShieldCheck, label: "Verified Partner", desc: "Most trusted in Hyderabad" },
-];
+
 
 const WAREHOUSE_MAPPING: Record<string, string> = {
   "Battery (Inverters)": "/images/warehouse/batteries.png",
@@ -103,24 +98,7 @@ export function Pricing() {
     <section id="pricing" className="py-12 bg-white relative">
       <div className="max-w-7xl mx-auto px-6">
         
-        {/* Trust Banner */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 border-b border-zinc-100 pb-8">
-          {TRUST_BADGES.map((badge, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="flex flex-col items-center text-center group"
-            >
-              <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                <badge.icon size={24} />
-              </div>
-              <h4 className="font-extrabold text-base text-zinc-900 mb-1">{badge.label}</h4>
-              <p className="text-zinc-500 text-xs font-medium max-w-[180px]">{badge.desc}</p>
-            </motion.div>
-          ))}
-        </div>
+
 
         <header className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
           <div className="max-w-2xl">

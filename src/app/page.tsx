@@ -13,10 +13,10 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      
+
       <main className="flex-grow">
         <Hero />
-        
+
         <div id="categories">
           <Categories />
         </div>
@@ -24,7 +24,7 @@ export default function Home() {
         <div id="commercial-sectors">
           <CommercialSectors />
         </div>
-        
+
         <div id="pricing">
           <Pricing />
         </div>
@@ -32,11 +32,11 @@ export default function Home() {
         <div id="reviews">
           <Reviews />
         </div>
-        
+
         <div id="why-us">
           <WhyChooseUs />
         </div>
-        
+
         <LeadForm />
       </main>
 

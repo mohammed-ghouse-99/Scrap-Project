@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User } from "lucide-react";
+import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ScrapRate {
@@ -16,10 +16,13 @@ interface ScrapRate {
 interface Pickup {
   id: string;
   name: string;
+  phone: string;
   type: string;
   location: string;
   weight: string;
   status: string;
+  rating?: number | null;
+  feedback?: string | null;
   createdAt: string;
 }
 
@@ -123,6 +126,18 @@ export default function AdminPage() {
     } catch (error) {
       setMessage({ type: "error", text: "Failed to update status" });
     }
+  };
+
+  const handleShareFeedback = (pickup: Pickup) => {
+    let cleanPhone = pickup.phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10) {
+      cleanPhone = "91" + cleanPhone;
+    }
+    const origin = window.location.origin;
+    const feedbackUrl = `${origin}/feedback/${pickup.id}`;
+    const message = `Hi ${pickup.name}, thank you for choosing MS Steel & Scrap! Please take 10 seconds to rate your pickup experience here: ${feedbackUrl}`;
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   const addNewRate = () => {
@@ -330,22 +345,24 @@ export default function AdminPage() {
                   <tr className="bg-slate-50 border-b border-slate-200">
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Material Type</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Est. Weight</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Feedback</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {pickupsLoading ? (
                     Array(4).fill(0).map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td colSpan={6} className="px-6 py-4"><div className="h-10 bg-slate-100 rounded-lg w-full"></div></td>
+                        <td colSpan={8} className="px-6 py-4"><div className="h-10 bg-slate-100 rounded-lg w-full"></div></td>
                       </tr>
                     ))
                   ) : pickups.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
                         No pickup requests recorded yet.
                       </td>
                     </tr>
@@ -367,6 +384,12 @@ export default function AdminPage() {
                           <span className="flex items-center gap-2 font-medium text-slate-900">
                             <User size={16} className="text-slate-400" />
                             {pickup.name}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">
+                          <span className="flex items-center gap-1.5">
+                            <PhoneIcon size={14} className="text-slate-400" />
+                            {pickup.phone || "—"}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-slate-700 text-sm font-semibold">
@@ -397,6 +420,37 @@ export default function AdminPage() {
                             <option value="COMPLETED">COMPLETED</option>
                             <option value="CANCELLED">CANCELLED</option>
                           </select>
+                        </td>
+                        <td className="px-6 py-4 text-sm whitespace-nowrap">
+                          {pickup.status === "COMPLETED" ? (
+                            pickup.rating ? (
+                              <div className="flex flex-col gap-0.5">
+                                <div className="flex text-amber-400 gap-0.5">
+                                  {Array(5).fill(0).map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      size={12} 
+                                      className={i < (pickup.rating || 0) ? "fill-amber-400 text-amber-400" : "text-slate-200"} 
+                                    />
+                                  ))}
+                                </div>
+                                {pickup.feedback && (
+                                  <span className="text-[10px] text-slate-500 max-w-[120px] truncate block font-semibold" title={pickup.feedback}>
+                                    {pickup.feedback}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleShareFeedback(pickup)}
+                                className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-md border border-emerald-200/50 transition-colors cursor-pointer"
+                              >
+                                <Share2 size={12} /> Request Review
+                              </button>
+                            )
+                          ) : (
+                            <span className="text-slate-400 text-xs">—</span>
+                          )}
                         </td>
                       </tr>
                     ))

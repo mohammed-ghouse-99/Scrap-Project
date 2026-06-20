@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
-import { ArrowRight, Smartphone, Scale, Wallet, MapPin, Zap } from "lucide-react";
+import { ArrowRight, Smartphone, Scale, Wallet } from "lucide-react";
 import Link from "next/link";
 
 const steps = [
@@ -159,39 +159,6 @@ export function Hero() {
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              {/* Mini Booking Feed */}
-              <div className="mt-6 pt-4 border-t border-zinc-800/80 bg-zinc-950/30 -mx-6 -mb-6 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="text-emerald-500 w-3.5 h-3.5" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Recent Pickups Log</span>
-                </div>
-                
-                <div className="overflow-hidden h-7 relative">
-                  <motion.div
-                    animate={{ y: [0, -28, -56, 0] }}
-                    transition={{
-                      duration: 9,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="space-y-1 absolute left-0 right-0"
-                  >
-                    <div className="text-[10px] font-medium text-zinc-400 flex justify-between h-6 items-center">
-                      <span>Madhapur: 140kg Iron</span>
-                      <span className="text-emerald-400 font-bold flex items-center gap-1"><Zap size={8} /> Completed</span>
-                    </div>
-                    <div className="text-[10px] font-medium text-zinc-400 flex justify-between h-6 items-center">
-                      <span>Gachibowli: 35kg E-Waste</span>
-                      <span className="text-emerald-400 font-bold flex items-center gap-1"><Zap size={8} /> Completed</span>
-                    </div>
-                    <div className="text-[10px] font-medium text-zinc-400 flex justify-between h-6 items-center">
-                      <span>Secunderabad: 80kg Brass</span>
-                      <span className="text-emerald-400 font-bold flex items-center gap-1"><Zap size={8} /> Completed</span>
-                    </div>
-                  </motion.div>
-                </div>
               </div>
             </motion.div>
           </div>
