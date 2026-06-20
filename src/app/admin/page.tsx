@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 
 interface ScrapRate {
   id?: string;
@@ -38,6 +39,10 @@ const CATEGORY_DEFAULTS: Record<string, string> = {
 };
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState(false);
+
   const [rates, setRates] = useState<ScrapRate[]>([]);
   const [pickups, setPickups] = useState<Pickup[]>([]);
   const [activeTab, setActiveTab] = useState<"rates" | "pickups">("rates");
@@ -47,9 +52,31 @@ export default function AdminPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    fetchRates();
-    fetchPickups();
+    if (typeof window !== "undefined") {
+      const isAuth = localStorage.getItem("admin_authenticated") === "true";
+      if (isAuth) {
+        setIsAuthenticated(true);
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchRates();
+      fetchPickups();
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === "admin9550") {
+      localStorage.setItem("admin_authenticated", "true");
+      setIsAuthenticated(true);
+      setAuthError(false);
+    } else {
+      setAuthError(true);
+    }
+  };
 
   const fetchRates = async () => {
     setLoading(true);
@@ -157,6 +184,68 @@ export default function AdminPage() {
       image: CATEGORY_DEFAULTS[defaultCategory]
     }, ...rates]);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background radial overlays */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(#10b981 1.5px, transparent 0)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+        <div className="absolute -left-32 -top-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute -right-32 -bottom-32 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-2xl relative z-10 text-center"
+        >
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 mb-4">
+              <User className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-black italic text-white uppercase tracking-tight">
+              Admin Access Gate
+            </h2>
+            <p className="text-zinc-400 text-xs mt-1 font-semibold">
+              Enter your access key to manage MS Steel & Scrap
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5 text-left">
+              <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                Access Key
+              </label>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-12 bg-zinc-950 border border-zinc-850 rounded-xl px-4 text-white placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-center font-bold tracking-widest"
+              />
+              {authError && (
+                <p className="text-[10px] text-red-500 font-bold mt-1 text-center">
+                  Invalid Access Key. Please try again.
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/10 transition-all border-none"
+            >
+              Verify & Unlock
+            </Button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">

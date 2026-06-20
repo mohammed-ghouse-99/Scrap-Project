@@ -8,10 +8,9 @@ import { formatWhatsAppLink } from "@/lib/utils";
 import { User, Phone, Package, MapPin, Zap, Scale, Sparkles } from "lucide-react";
 
 const WEIGHT_OPTIONS = [
-  { value: "Under 20kg", label: "Small (Under 20kg)", desc: "e.g., small box, a few books, old laptop" },
-  { value: "20kg - 100kg", label: "Medium (20kg - 100kg)", desc: "e.g., washing machine, single fridge, piles of newspapers" },
-  { value: "100kg - 500kg", label: "Heavy (100kg - 500kg)", desc: "e.g., commercial ACs, heavy steel pipes, full room clearance" },
-  { value: "Above 500kg", label: "Bulk (Above 500kg)", desc: "e.g., office dismantling, warehouse scrap, industrial lots" },
+  { value: "Under 30kg", label: "Small (<30kg)", desc: "e.g., books, newspapers, laptop" },
+  { value: "30kg - 150kg", label: "Medium (30-150kg)", desc: "e.g., washing machine, fridge, AC" },
+  { value: "Above 150kg", label: "Bulk (>150kg)", desc: "e.g., warehouse scrap, office dismantle" },
 ];
 
 export function LeadForm() {
@@ -20,12 +19,43 @@ export function LeadForm() {
     phone: "",
     type: "",
     location: "",
-    weight: "Under 20kg",
+    weight: "Under 30kg",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({
+    name: "",
+    phone: "",
+    location: "",
+  });
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { name: "", phone: "", location: "" };
+
+    if (formData.name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters.";
+      isValid = false;
+    }
+
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+    if (cleanPhone.length < 10) {
+      newErrors.phone = "Enter a valid 10-digit mobile number.";
+      isValid = false;
+    }
+
+    if (formData.location.trim().length < 3) {
+      newErrors.location = "Please specify your area/location.";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setSubmitting(true);
     try {
       const res = await fetch("/api/pickups", {
@@ -39,7 +69,7 @@ export function LeadForm() {
       }
       
       // Clear form on success
-      setFormData({ name: "", phone: "", type: "", location: "", weight: "Under 20kg" });
+      setFormData({ name: "", phone: "", type: "", location: "", weight: "Under 30kg" });
     } catch (err) {
       console.error("[LEAD_FORM] Failed to record pickup in DB:", err);
     } finally {
@@ -127,9 +157,10 @@ export function LeadForm() {
                       placeholder="John Doe" 
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="pl-10 border-zinc-200 focus-visible:ring-emerald-500 focus-visible:border-emerald-500"
+                      className={`pl-10 border-zinc-200 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 ${errors.name ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                     />
                   </div>
+                  {errors.name && <p className="text-[10px] text-red-500 font-semibold">{errors.name}</p>}
                 </div>
 
                 {/* Phone Number */}
@@ -140,12 +171,13 @@ export function LeadForm() {
                     <Input 
                       required
                       type="tel"
-                      placeholder="e.g. +91 9885263743" 
+                      placeholder="e.g. 9885263743" 
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="pl-10 border-zinc-200 focus-visible:ring-emerald-500 focus-visible:border-emerald-500"
+                      className={`pl-10 border-zinc-200 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 ${errors.phone ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                     />
                   </div>
+                  {errors.phone && <p className="text-[10px] text-red-500 font-semibold">{errors.phone}</p>}
                 </div>
               </div>
 
@@ -177,16 +209,17 @@ export function LeadForm() {
                       placeholder="e.g. Madhapur, Banjara Hills" 
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      className="pl-10 border-zinc-200 focus-visible:ring-emerald-500"
+                      className={`pl-10 border-zinc-200 focus-visible:ring-emerald-500 ${errors.location ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                     />
                   </div>
+                  {errors.location && <p className="text-[10px] text-red-500 font-semibold">{errors.location}</p>}
                 </div>
               </div>
 
               {/* Weight Grid */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Approx Weight Estimate</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   {WEIGHT_OPTIONS.map((opt) => {
                     const isSelected = formData.weight === opt.value;
                     return (
