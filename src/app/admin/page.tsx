@@ -16,7 +16,7 @@ interface ScrapRate {
 interface Pickup {
   id: string;
   name: string;
-  phone: string;
+  phone?: string | null;
   type: string;
   location: string;
   weight: string;
@@ -129,7 +129,14 @@ export default function AdminPage() {
   };
 
   const handleShareFeedback = (pickup: Pickup) => {
-    let cleanPhone = pickup.phone.replace(/\D/g, "");
+    let phoneVal = pickup.phone || "";
+    if (!phoneVal) {
+      const manualPhone = prompt(`No contact number is recorded for ${pickup.name}'s booking. Please enter their WhatsApp number (e.g. 9885263743):`);
+      if (!manualPhone) return;
+      phoneVal = manualPhone;
+    }
+
+    let cleanPhone = phoneVal.replace(/\D/g, "");
     if (cleanPhone.length === 10) {
       cleanPhone = "91" + cleanPhone;
     }
