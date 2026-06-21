@@ -78,6 +78,7 @@ export function CommercialSectors() {
                     alt={sector.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-95"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 via-zinc-900/30 to-transparent"></div>

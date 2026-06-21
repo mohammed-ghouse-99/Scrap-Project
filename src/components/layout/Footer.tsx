@@ -58,6 +58,7 @@ export function Footer() {
               alt="Founder"
               fill
               className="object-cover scale-105"
+              sizes="(max-width: 768px) 160px, 160px"
             />
           </div>
           <div>

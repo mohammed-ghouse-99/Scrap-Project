@@ -115,6 +115,15 @@ export default function AdminPage() {
   };
 
   const handleSave = async (rate: ScrapRate) => {
+    if (!rate.name || rate.name.trim() === "") {
+      setMessage({ type: "error", text: "Item name cannot be empty." });
+      return;
+    }
+    if (rate.price === undefined || rate.price === null || isNaN(Number(rate.price)) || Number(rate.price) < 0) {
+      setMessage({ type: "error", text: "Price must be a valid positive number." });
+      return;
+    }
+
     setSaving(true);
     setMessage(null);
     try {
@@ -255,17 +264,31 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">MS Steel & Scrap Admin</h1>
             <p className="text-slate-500 mt-1">Manage scrap market rates and view incoming customer bookings.</p>
           </div>
-          {activeTab === "rates" && (
+          <div className="flex items-center gap-3">
+            {activeTab === "rates" && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={addNewRate}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors cursor-pointer"
+              >
+                <Plus size={20} />
+                Add New Item
+              </motion.button>
+            )}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={addNewRate}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors cursor-pointer"
+              onClick={() => {
+                localStorage.removeItem("admin_authenticated");
+                setIsAuthenticated(false);
+                setPassword("");
+              }}
+              className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-sm transition-colors cursor-pointer text-sm"
             >
-              <Plus size={20} />
-              Add New Item
+              Logout
             </motion.button>
-          )}
+          </div>
         </header>
 
         {/* Tab Controls */}
