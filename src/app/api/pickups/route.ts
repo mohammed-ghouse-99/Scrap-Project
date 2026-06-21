@@ -1,13 +1,51 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// Fetch all pickup requests, sorted newest first
-export async function GET() {
+// Fetch pickup requests with support for search, status filtering, and pagination
+export async function GET(request: Request) {
   try {
-    const pickups = await db.pickup.findMany({
-      orderBy: { createdAt: "desc" },
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status") || "";
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (search) {
+      const searchTrimmed = search.trim();
+      where.OR = [
+        { name: { contains: searchTrimmed, mode: "insensitive" } },
+        { phone: { contains: searchTrimmed, mode: "insensitive" } },
+        { location: { contains: searchTrimmed, mode: "insensitive" } },
+        { type: { contains: searchTrimmed, mode: "insensitive" } },
+      ];
+    }
+
+    const [pickups, total] = await Promise.all([
+      db.pickup.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      db.pickup.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      pickups,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     });
-    return NextResponse.json(pickups);
   } catch (error: any) {
     console.error("[API/PICKUPS] Error fetching pickups:", error);
     return NextResponse.json({ error: "Failed to fetch pickups" }, { status: 500 });

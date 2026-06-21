@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star } from "lucide-react";
+import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 
@@ -51,29 +51,58 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Search & Pagination State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const limit = 20;
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isAuth = localStorage.getItem("admin_authenticated") === "true";
-      if (isAuth) {
-        setIsAuthenticated(true);
+    const checkSession = async () => {
+      try {
+        const res = await fetch("/api/admin/check");
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
       }
-    }
+    };
+    checkSession();
   }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchRates();
-      fetchPickups();
     }
   }, [isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchPickups(page, searchQuery);
+    }
+  }, [isAuthenticated, page, searchQuery]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin9550") {
-      localStorage.setItem("admin_authenticated", "true");
-      setIsAuthenticated(true);
-      setAuthError(false);
-    } else {
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      
+      if (res.ok) {
+        setIsAuthenticated(true);
+        setAuthError(false);
+      } else {
+        setAuthError(true);
+      }
+    } catch (error) {
       setAuthError(true);
     }
   };
@@ -96,16 +125,19 @@ export default function AdminPage() {
     }
   };
 
-  const fetchPickups = async () => {
+  const fetchPickups = async (currentPage = page, query = searchQuery) => {
     setPickupsLoading(true);
     try {
-      const res = await fetch("/api/pickups");
+      const res = await fetch(`/api/pickups?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(query)}`);
       if (!res.ok) {
         throw new Error(`Server returned ${res.status}`);
       }
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setPickups(data);
+      if (data && Array.isArray(data.pickups)) {
+        setPickups(data.pickups);
+        setPage(data.pagination.page);
+        setTotalPages(data.pagination.totalPages);
+        setTotalCount(data.pagination.total);
       }
     } catch (error) {
       console.error("Failed to load pickups:", error);
@@ -415,8 +447,10 @@ export default function AdminPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                localStorage.removeItem("admin_authenticated");
+              onClick={async () => {
+                try {
+                  await fetch("/api/admin/logout", { method: "POST" });
+                } catch (e) {}
                 setIsAuthenticated(false);
                 setPassword("");
               }}
@@ -593,108 +627,186 @@ export default function AdminPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            {/* COLUMN 1: PENDING */}
-            <div 
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData("text/plain");
-                if (id) handleUpdatePickupStatus(id, "PENDING");
-              }}
-              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
-                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  Pending Requests
-                </h3>
-                <span className="bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {pickups.filter(p => p.status === "PENDING").length}
+          <div className="space-y-6">
+            {/* Search Bar Block */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-zinc-900/40 border border-zinc-850 p-4 rounded-3xl backdrop-blur-md">
+              <div className="relative w-full md:max-w-md">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                  <Search size={16} />
                 </span>
+                <input
+                  type="text"
+                  value={searchInputValue}
+                  onChange={(e) => setSearchInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setSearchQuery(searchInputValue);
+                      setPage(1);
+                    }
+                  }}
+                  placeholder="Search bookings by name, phone, area, or material..."
+                  className="w-full pl-9 pr-8 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                />
+                {searchInputValue && (
+                  <button
+                    onClick={() => {
+                      setSearchInputValue("");
+                      setSearchQuery("");
+                      setPage(1);
+                    }}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-white bg-transparent border-none cursor-pointer text-sm"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
-              
-              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
-                {pickupsLoading ? (
-                  Array(2).fill(0).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
-                  ))
-                ) : pickups.filter(p => p.status === "PENDING").length === 0 ? (
-                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No pending requests</p>
-                ) : (
-                  pickups.filter(p => p.status === "PENDING").map(p => renderKanbanCard(p))
+              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <button
+                  onClick={() => {
+                    setSearchQuery(searchInputValue);
+                    setPage(1);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none"
+                >
+                  Search
+                </button>
+                {searchQuery && (
+                  <span className="text-xs text-zinc-400 font-semibold bg-zinc-850 px-3 py-1.5 rounded-xl border border-zinc-800">
+                    Filter Active
+                  </span>
                 )}
               </div>
             </div>
 
-            {/* COLUMN 2: COMPLETED */}
-            <div 
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData("text/plain");
-                if (id) handleUpdatePickupStatus(id, "COMPLETED");
-              }}
-              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
-                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  Completed Pickups
-                </h3>
-                <span className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {pickups.filter(p => p.status === "COMPLETED").length}
-                </span>
+            {/* Kanban Columns Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              {/* COLUMN 1: PENDING */}
+              <div 
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) handleUpdatePickupStatus(id, "PENDING");
+                }}
+                className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                  <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    Pending Requests
+                  </h3>
+                  <span className="bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                    {pickups.filter(p => p.status === "PENDING").length}
+                  </span>
+                </div>
+                
+                <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                  {pickupsLoading ? (
+                    Array(2).fill(0).map((_, i) => (
+                      <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                    ))
+                  ) : pickups.filter(p => p.status === "PENDING").length === 0 ? (
+                    <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No pending requests</p>
+                  ) : (
+                    pickups.filter(p => p.status === "PENDING").map(p => renderKanbanCard(p))
+                  )}
+                </div>
               </div>
-              
-              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
-                {pickupsLoading ? (
-                  Array(2).fill(0).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
-                  ))
-                ) : pickups.filter(p => p.status === "COMPLETED").length === 0 ? (
-                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No completed pickups</p>
-                ) : (
-                  pickups.filter(p => p.status === "COMPLETED").map(p => renderKanbanCard(p))
-                )}
+
+              {/* COLUMN 2: COMPLETED */}
+              <div 
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) handleUpdatePickupStatus(id, "COMPLETED");
+                }}
+                className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                  <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Completed Pickups
+                  </h3>
+                  <span className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                    {pickups.filter(p => p.status === "COMPLETED").length}
+                  </span>
+                </div>
+                
+                <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                  {pickupsLoading ? (
+                    Array(2).fill(0).map((_, i) => (
+                      <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                    ))
+                  ) : pickups.filter(p => p.status === "COMPLETED").length === 0 ? (
+                    <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No completed pickups</p>
+                  ) : (
+                    pickups.filter(p => p.status === "COMPLETED").map(p => renderKanbanCard(p))
+                  )}
+                </div>
+              </div>
+
+              {/* COLUMN 3: CANCELLED */}
+              <div 
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) handleUpdatePickupStatus(id, "CANCELLED");
+                }}
+                className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                  <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                    Cancelled Bookings
+                  </h3>
+                  <span className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                    {pickups.filter(p => p.status === "CANCELLED").length}
+                  </span>
+                </div>
+                
+                <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                  {pickupsLoading ? (
+                    Array(2).fill(0).map((_, i) => (
+                      <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                    ))
+                  ) : pickups.filter(p => p.status === "CANCELLED").length === 0 ? (
+                    <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No cancelled bookings</p>
+                  ) : (
+                    pickups.filter(p => p.status === "CANCELLED").map(p => renderKanbanCard(p))
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* COLUMN 3: CANCELLED */}
-            <div 
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData("text/plain");
-                if (id) handleUpdatePickupStatus(id, "CANCELLED");
-              }}
-              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
-                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                  Cancelled Bookings
-                </h3>
-                <span className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {pickups.filter(p => p.status === "CANCELLED").length}
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/40 border border-zinc-850 p-4 rounded-3xl backdrop-blur-md mt-6">
+                <span className="text-xs text-zinc-400 font-semibold">
+                  Showing page <span className="text-white">{page}</span> of <span className="text-white">{totalPages}</span> ({totalCount} total bookings)
                 </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                    className="flex items-center gap-1 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-zinc-950 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-zinc-800 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={14} /> Prev
+                  </button>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                    className="flex items-center gap-1 bg-zinc-950 hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-zinc-950 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-zinc-800 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    Next <ChevronRight size={14} />
+                  </button>
+                </div>
               </div>
-              
-              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
-                {pickupsLoading ? (
-                  Array(2).fill(0).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
-                  ))
-                ) : pickups.filter(p => p.status === "CANCELLED").length === 0 ? (
-                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No cancelled bookings</p>
-                ) : (
-                  pickups.filter(p => p.status === "CANCELLED").map(p => renderKanbanCard(p))
-                )}
-              </div>
-            </div>
+            )}
           </div>
         )}
 
         <footer className="mt-12 text-center relative z-10 pb-8">
           <button 
-            onClick={activeTab === "rates" ? fetchRates : fetchPickups}
+            onClick={() => activeTab === "rates" ? fetchRates() : fetchPickups()}
             className="text-zinc-500 hover:text-emerald-400 flex items-center gap-2 mx-auto text-sm font-semibold transition-colors cursor-pointer bg-transparent border-none"
           >
             <RefreshCw size={14} className={(loading || pickupsLoading) ? "animate-spin" : ""} />
