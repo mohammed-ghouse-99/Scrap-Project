@@ -196,6 +196,25 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeletePickup = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this pickup request?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/pickups?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setMessage({ type: "success", text: "Pickup request deleted successfully!" });
+        fetchPickups();
+      } else {
+        throw new Error("Failed to delete pickup request");
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to delete pickup request" });
+    }
+  };
+
   const handleShareFeedback = (pickup: Pickup) => {
     let phoneVal = pickup.phone || "";
     if (!phoneVal) {
@@ -307,8 +326,19 @@ export default function AdminPage() {
               minute: "2-digit"
             })}
           </span>
-          {/* Drag dots icon hint */}
-          <span className="text-zinc-700 group-hover:text-zinc-500 transition-colors font-bold">⠿ DRAG</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeletePickup(pickup.id);
+              }}
+              className="text-zinc-600 hover:text-rose-500 transition-colors p-1 bg-transparent border-none cursor-pointer inline-flex items-center justify-center rounded-lg hover:bg-rose-500/10"
+              title="Delete Booking"
+            >
+              <Trash2 size={12} />
+            </button>
+            <span className="text-zinc-700 group-hover:text-zinc-500 transition-colors font-bold">⠿ DRAG</span>
+          </div>
         </div>
 
         {/* Customer Details */}

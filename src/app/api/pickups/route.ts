@@ -127,3 +127,25 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Failed to update pickup status" }, { status: 500 });
   }
 }
+
+// Delete an existing pickup request
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    const deleted = await db.pickup.delete({
+      where: { id },
+    });
+
+    console.log(`[API/PICKUPS] Deleted pickup ${id}`);
+    return NextResponse.json({ success: true, deleted });
+  } catch (error: any) {
+    console.error("[API/PICKUPS] Error deleting pickup:", error);
+    return NextResponse.json({ error: "Failed to delete pickup request" }, { status: 500 });
+  }
+}
