@@ -256,13 +256,149 @@ export default function AdminPage() {
     );
   }
 
+  const renderKanbanCard = (pickup: Pickup) => {
+    return (
+      <div
+        key={pickup.id}
+        draggable
+        onDragStart={(e) => e.dataTransfer.setData("text/plain", pickup.id)}
+        className="bg-zinc-950/60 border border-zinc-850 hover:border-emerald-500/30 p-4 rounded-2xl shadow-md cursor-grab active:cursor-grabbing hover:shadow-lg transition-all space-y-3 relative group"
+      >
+        {/* Date & Drag Handle Indicator */}
+        <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+          <span className="flex items-center gap-1">
+            <Calendar size={12} className="text-zinc-600" />
+            {new Date(pickup.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+          {/* Drag dots icon hint */}
+          <span className="text-zinc-700 group-hover:text-zinc-500 transition-colors font-bold">⠿ DRAG</span>
+        </div>
+
+        {/* Customer Details */}
+        <div className="space-y-1">
+          <h4 className="text-sm font-black text-white flex items-center gap-2">
+            <User size={14} className="text-emerald-500" />
+            {pickup.name}
+          </h4>
+          <p className="text-xs text-zinc-400 flex items-center gap-2 font-semibold">
+            <PhoneIcon size={12} className="text-zinc-600" />
+            {pickup.phone || "No Contact"}
+          </p>
+        </div>
+
+        {/* Material & Weight */}
+        <div className="bg-zinc-900/60 border border-zinc-850/50 rounded-xl p-2.5 space-y-1">
+          <p className="text-[11px] text-zinc-400 font-bold leading-tight">
+            <span className="text-zinc-600">Material:</span> {pickup.type}
+          </p>
+          <p className="text-[11px] text-zinc-400 font-bold">
+            <span className="text-zinc-600">Est. Weight:</span> {pickup.weight}
+          </p>
+        </div>
+
+        {/* Location */}
+        <div className="text-xs text-zinc-400 flex items-center gap-1.5 font-semibold">
+          <MapPin size={12} className="text-emerald-500" />
+          <span>{pickup.location}</span>
+        </div>
+
+        {/* Action Controls & Rating display */}
+        <div className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
+          {/* Touch fallback selector (quick move buttons) */}
+          <div className="flex items-center justify-between gap-1.5">
+            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Quick Move:</span>
+            <div className="flex gap-1">
+              {pickup.status !== "PENDING" && (
+                <button
+                  onClick={() => handleUpdatePickupStatus(pickup.id, "PENDING")}
+                  className="text-[9px] font-extrabold text-zinc-400 hover:text-white bg-zinc-900 hover:bg-zinc-850 px-2 py-1 rounded-md border border-zinc-850 transition-colors cursor-pointer"
+                  title="Revert to Pending"
+                >
+                  Pending
+                </button>
+              )}
+              {pickup.status !== "COMPLETED" && (
+                <button
+                  onClick={() => handleUpdatePickupStatus(pickup.id, "COMPLETED")}
+                  className="text-[9px] font-extrabold text-emerald-400 hover:text-white bg-emerald-950/20 hover:bg-emerald-900/30 px-2 py-1 rounded-md border border-emerald-900/30 transition-colors cursor-pointer"
+                  title="Mark Completed"
+                >
+                  Complete
+                </button>
+              )}
+              {pickup.status !== "CANCELLED" && (
+                <button
+                  onClick={() => handleUpdatePickupStatus(pickup.id, "CANCELLED")}
+                  className="text-[9px] font-extrabold text-rose-400 hover:text-white bg-rose-950/20 hover:bg-rose-900/30 px-2 py-1 rounded-md border border-rose-900/30 transition-colors cursor-pointer"
+                  title="Cancel Booking"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* WhatsApp share feedback / Star ratings */}
+          {pickup.status === "COMPLETED" && (
+            <div className="pt-1.5 border-t border-zinc-900/85">
+              {pickup.rating ? (
+                <div className="space-y-1">
+                  <div className="flex text-amber-400 gap-0.5">
+                    {Array(5).fill(0).map((_, i) => (
+                      <Star 
+                        key={i} 
+                        size={11} 
+                        className={i < (pickup.rating || 0) ? "fill-amber-400 text-amber-400" : "text-zinc-850"} 
+                      />
+                    ))}
+                  </div>
+                  {pickup.feedback && (
+                    <span className="text-[10px] text-zinc-500 block italic leading-snug font-semibold" title={pickup.feedback}>
+                      "{pickup.feedback}"
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleShareFeedback(pickup)}
+                  className="w-full flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 py-2 rounded-xl border border-emerald-500/10 hover:border-emerald-500/25 transition-all cursor-pointer"
+                >
+                  <Share2 size={11} /> Request Review
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-zinc-950 text-white p-6 md:p-12 relative overflow-hidden">
+      {/* Background radial overlays */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(#10b981 1.5px, transparent 0)`,
+          backgroundSize: '24px 24px'
+        }}
+      />
+      <div className="absolute -left-32 -top-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -right-32 -bottom-32 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">MS Steel & Scrap Admin</h1>
-            <p className="text-slate-500 mt-1">Manage scrap market rates and view incoming customer bookings.</p>
+            <h1 className="text-3xl font-black italic text-white uppercase tracking-tight">
+              MS Steel & Scrap <span className="text-emerald-400">Admin</span>
+            </h1>
+            <p className="text-zinc-400 mt-1 text-sm font-semibold">
+              Manage scrap market rates and view incoming customer bookings.
+            </p>
           </div>
           <div className="flex items-center gap-3">
             {activeTab === "rates" && (
@@ -270,7 +406,7 @@ export default function AdminPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={addNewRate}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors cursor-pointer"
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/10 transition-colors cursor-pointer text-sm border-none"
               >
                 <Plus size={20} />
                 Add New Item
@@ -284,7 +420,7 @@ export default function AdminPage() {
                 setIsAuthenticated(false);
                 setPassword("");
               }}
-              className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-sm transition-colors cursor-pointer text-sm"
+              className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider transition-colors cursor-pointer text-xs border-none"
             >
               Logout
             </motion.button>
@@ -292,13 +428,13 @@ export default function AdminPage() {
         </header>
 
         {/* Tab Controls */}
-        <div className="flex border-b border-slate-200 mb-8 gap-6 text-sm font-semibold">
+        <div className="flex border-b border-zinc-850 mb-8 gap-6 text-sm font-semibold">
           <button
             onClick={() => { setActiveTab("rates"); setMessage(null); }}
             className={`pb-4 border-b-2 px-1 transition-all cursor-pointer ${
               activeTab === "rates"
-                ? "border-emerald-600 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+                ? "border-emerald-500 text-emerald-400"
+                : "border-transparent text-zinc-500 hover:text-zinc-300"
             }`}
           >
             Scrap Rates Manager
@@ -307,8 +443,8 @@ export default function AdminPage() {
             onClick={() => { setActiveTab("pickups"); setMessage(null); }}
             className={`pb-4 border-b-2 px-1 transition-all cursor-pointer ${
               activeTab === "pickups"
-                ? "border-emerald-600 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+                ? "border-emerald-500 text-emerald-400"
+                : "border-transparent text-zinc-500 hover:text-zinc-300"
             }`}
           >
             Pickup Bookings ({pickups.length})
@@ -323,45 +459,45 @@ export default function AdminPage() {
               exit={{ opacity: 0, y: -10 }}
               className={`mb-6 p-4 rounded-xl flex items-center gap-3 border ${
                 message.type === "success" 
-                  ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
-                  : "bg-rose-50 border-rose-100 text-rose-800"
+                  ? "bg-emerald-950/40 border-emerald-800/40 text-emerald-300" 
+                  : "bg-rose-950/40 border-rose-800/40 text-rose-300"
               }`}
             >
-              {message.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-              <span className="font-medium">{message.text}</span>
+              {message.type === "success" ? <CheckCircle2 size={20} className="text-emerald-400" /> : <AlertCircle size={20} className="text-rose-400" />}
+              <span className="font-semibold text-sm">{message.text}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
         {activeTab === "rates" ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-zinc-900/40 rounded-3xl border border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Item Name</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Price (₹)</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Unit</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                  <tr className="bg-zinc-950/80 border-b border-zinc-850">
+                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Item Name</th>
+                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Category</th>
+                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Price (₹)</th>
+                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">Unit</th>
+                    <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-zinc-850/60">
                   {loading ? (
                     Array(5).fill(0).map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td colSpan={5} className="px-6 py-4"><div className="h-10 bg-slate-100 rounded-lg w-full"></div></td>
+                        <td colSpan={5} className="px-6 py-6"><div className="h-10 bg-zinc-800/50 rounded-xl w-full"></div></td>
                       </tr>
                     ))
                   ) : rates.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                      <td colSpan={5} className="px-6 py-12 text-center text-zinc-500 font-semibold text-sm">
                         No rates found. Click "Add New Item" to begin.
                       </td>
                     </tr>
                   ) : (
                     rates.map((rate, idx) => (
-                      <tr key={rate.id || idx} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={rate.id || idx} className="hover:bg-zinc-900/20 transition-colors">
                         <td className="px-6 py-4">
                           <input
                             type="text"
@@ -372,7 +508,7 @@ export default function AdminPage() {
                               newRates[idx].name = e.target.value;
                               setRates(newRates);
                             }}
-                            className="w-full bg-transparent border-none focus:ring-0 font-medium text-slate-900 placeholder:text-slate-300 focus:outline-none"
+                            className="w-full bg-zinc-950/50 border border-zinc-850 rounded-xl px-3 py-2 text-white placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-semibold"
                           />
                         </td>
                         <td className="px-6 py-4">
@@ -390,9 +526,9 @@ export default function AdminPage() {
                               newRates[idx].category = newCategory;
                               setRates(newRates);
                             }}
-                            className="bg-slate-100/50 text-slate-600 text-sm rounded-lg border-none focus:ring-emerald-500 p-2 cursor-pointer focus:outline-none"
+                            className="bg-zinc-950/50 border border-zinc-850 text-zinc-300 text-sm rounded-xl focus:ring-emerald-500 p-2 cursor-pointer focus:outline-none font-semibold"
                           >
-                            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-zinc-900 text-white">{c}</option>)}
                           </select>
                         </td>
                         <td className="px-6 py-4">
@@ -404,7 +540,7 @@ export default function AdminPage() {
                               newRates[idx].price = e.target.value;
                               setRates(newRates);
                             }}
-                            className="w-24 bg-slate-100/50 text-slate-900 font-semibold rounded-lg border-none focus:ring-emerald-500 p-2 focus:outline-none"
+                            className="w-24 bg-zinc-950/50 border border-zinc-850 text-white font-bold rounded-xl focus:ring-emerald-500 p-2 focus:outline-none text-sm"
                           />
                         </td>
                         <td className="px-6 py-4">
@@ -416,7 +552,7 @@ export default function AdminPage() {
                               newRates[idx].unit = e.target.value;
                               setRates(newRates);
                             }}
-                            className="w-16 bg-transparent border-none focus:ring-0 text-slate-500 text-sm focus:outline-none"
+                            className="w-16 bg-transparent border-none focus:ring-0 text-zinc-400 text-sm focus:outline-none font-semibold"
                           />
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -426,7 +562,7 @@ export default function AdminPage() {
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleSave(rate)}
                               disabled={saving}
-                              className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors inline-flex cursor-pointer"
+                              className="p-2 text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-colors inline-flex cursor-pointer border-none"
                             >
                               <Save size={20} />
                             </motion.button>
@@ -443,7 +579,7 @@ export default function AdminPage() {
                                   }
                                 }
                               }}
-                              className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors inline-flex cursor-pointer"
+                              className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors inline-flex cursor-pointer border-none"
                             >
                               <Trash2 size={20} />
                             </motion.button>
@@ -457,133 +593,109 @@ export default function AdminPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Material Type</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Est. Weight</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Feedback</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {pickupsLoading ? (
-                    Array(4).fill(0).map((_, i) => (
-                      <tr key={i} className="animate-pulse">
-                        <td colSpan={8} className="px-6 py-4"><div className="h-10 bg-slate-100 rounded-lg w-full"></div></td>
-                      </tr>
-                    ))
-                  ) : pickups.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
-                        No pickup requests recorded yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    pickups.map((pickup) => (
-                      <tr key={pickup.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
-                          <span className="flex items-center gap-1.5">
-                            <Calendar size={14} />
-                            {new Date(pickup.createdAt).toLocaleDateString("en-IN", {
-                              day: "2-digit",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit"
-                            })}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="flex items-center gap-2 font-medium text-slate-900">
-                            <User size={16} className="text-slate-400" />
-                            {pickup.name}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">
-                          <span className="flex items-center gap-1.5">
-                            <PhoneIcon size={14} className="text-slate-400" />
-                            {pickup.phone || "—"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-slate-700 text-sm font-semibold">
-                          {pickup.type}
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 text-sm">
-                          <span className="flex items-center gap-1">
-                            <MapPin size={14} className="text-slate-400" />
-                            {pickup.location}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-slate-900 font-semibold text-sm">
-                          {pickup.weight}
-                        </td>
-                        <td className="px-6 py-4">
-                          <select
-                            value={pickup.status}
-                            onChange={(e) => handleUpdatePickupStatus(pickup.id, e.target.value)}
-                            className={`text-xs font-bold rounded-full px-3 py-1.5 border cursor-pointer focus:outline-none transition-colors ${
-                              pickup.status === "PENDING"
-                                ? "bg-amber-50 text-amber-800 border-amber-200 focus:ring-amber-500"
-                                : pickup.status === "COMPLETED"
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-200 focus:ring-emerald-500"
-                                : "bg-rose-50 text-rose-800 border-rose-200 focus:ring-rose-500"
-                            }`}
-                          >
-                            <option value="PENDING">PENDING</option>
-                            <option value="COMPLETED">COMPLETED</option>
-                            <option value="CANCELLED">CANCELLED</option>
-                          </select>
-                        </td>
-                        <td className="px-6 py-4 text-sm whitespace-nowrap">
-                          {pickup.status === "COMPLETED" ? (
-                            pickup.rating ? (
-                              <div className="flex flex-col gap-0.5">
-                                <div className="flex text-amber-400 gap-0.5">
-                                  {Array(5).fill(0).map((_, i) => (
-                                    <Star 
-                                      key={i} 
-                                      size={12} 
-                                      className={i < (pickup.rating || 0) ? "fill-amber-400 text-amber-400" : "text-slate-200"} 
-                                    />
-                                  ))}
-                                </div>
-                                {pickup.feedback && (
-                                  <span className="text-[10px] text-slate-500 max-w-[120px] truncate block font-semibold" title={pickup.feedback}>
-                                    {pickup.feedback}
-                                  </span>
-                                )}
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => handleShareFeedback(pickup)}
-                                className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-md border border-emerald-200/50 transition-colors cursor-pointer"
-                              >
-                                <Share2 size={12} /> Request Review
-                              </button>
-                            )
-                          ) : (
-                            <span className="text-slate-400 text-xs">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* COLUMN 1: PENDING */}
+            <div 
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                const id = e.dataTransfer.getData("text/plain");
+                if (id) handleUpdatePickupStatus(id, "PENDING");
+              }}
+              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                  Pending Requests
+                </h3>
+                <span className="bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  {pickups.filter(p => p.status === "PENDING").length}
+                </span>
+              </div>
+              
+              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                {pickupsLoading ? (
+                  Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                  ))
+                ) : pickups.filter(p => p.status === "PENDING").length === 0 ? (
+                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No pending requests</p>
+                ) : (
+                  pickups.filter(p => p.status === "PENDING").map(p => renderKanbanCard(p))
+                )}
+              </div>
+            </div>
+
+            {/* COLUMN 2: COMPLETED */}
+            <div 
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                const id = e.dataTransfer.getData("text/plain");
+                if (id) handleUpdatePickupStatus(id, "COMPLETED");
+              }}
+              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Completed Pickups
+                </h3>
+                <span className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  {pickups.filter(p => p.status === "COMPLETED").length}
+                </span>
+              </div>
+              
+              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                {pickupsLoading ? (
+                  Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                  ))
+                ) : pickups.filter(p => p.status === "COMPLETED").length === 0 ? (
+                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No completed pickups</p>
+                ) : (
+                  pickups.filter(p => p.status === "COMPLETED").map(p => renderKanbanCard(p))
+                )}
+              </div>
+            </div>
+
+            {/* COLUMN 3: CANCELLED */}
+            <div 
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                const id = e.dataTransfer.getData("text/plain");
+                if (id) handleUpdatePickupStatus(id, "CANCELLED");
+              }}
+              className="bg-zinc-900/30 border border-zinc-850 rounded-3xl p-5 backdrop-blur-md min-h-[500px] flex flex-col space-y-4"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-850">
+                <h3 className="font-extrabold text-sm text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                  Cancelled Bookings
+                </h3>
+                <span className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  {pickups.filter(p => p.status === "CANCELLED").length}
+                </span>
+              </div>
+              
+              <div className="flex-1 space-y-4 overflow-y-auto max-h-[700px] pr-1">
+                {pickupsLoading ? (
+                  Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="animate-pulse bg-zinc-900/50 h-32 rounded-2xl border border-zinc-850" />
+                  ))
+                ) : pickups.filter(p => p.status === "CANCELLED").length === 0 ? (
+                  <p className="text-zinc-600 text-xs text-center py-12 font-semibold">No cancelled bookings</p>
+                ) : (
+                  pickups.filter(p => p.status === "CANCELLED").map(p => renderKanbanCard(p))
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <footer className="mt-12 text-center">
+        <footer className="mt-12 text-center relative z-10 pb-8">
           <button 
             onClick={activeTab === "rates" ? fetchRates : fetchPickups}
-            className="text-slate-400 hover:text-emerald-600 flex items-center gap-2 mx-auto text-sm font-medium transition-colors cursor-pointer"
+            className="text-zinc-500 hover:text-emerald-400 flex items-center gap-2 mx-auto text-sm font-semibold transition-colors cursor-pointer bg-transparent border-none"
           >
             <RefreshCw size={14} className={(loading || pickupsLoading) ? "animate-spin" : ""} />
             Sync with Neon Database
