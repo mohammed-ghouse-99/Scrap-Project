@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const rates = await db.scrapRate.findMany({
+      where: { deletedAt: null },
       orderBy: { name: "asc" },
     });
     return NextResponse.json(rates);
@@ -35,18 +36,37 @@ export async function POST(request: Request) {
           price: parseFloat(price),
           unit,
           image: image || null,
+          deletedAt: null, // Clear soft-delete state if re-saving
         },
       });
     } else {
-      rate = await db.scrapRate.create({
-        data: {
-          name,
-          category,
-          price: parseFloat(price),
-          unit,
-          image: image || null,
-        },
+      // Avoid uniqueness conflicts by restoring matching soft-deleted item
+      const existing = await db.scrapRate.findFirst({
+        where: { name }
       });
+
+      if (existing) {
+        rate = await db.scrapRate.update({
+          where: { id: existing.id },
+          data: {
+            category,
+            price: parseFloat(price),
+            unit,
+            image: image || null,
+            deletedAt: null, // Reactivate
+          },
+        });
+      } else {
+        rate = await db.scrapRate.create({
+          data: {
+            name,
+            category,
+            price: parseFloat(price),
+            unit,
+            image: image || null,
+          },
+        });
+      }
     }
 
     return NextResponse.json(rate);
@@ -65,8 +85,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    await db.scrapRate.delete({
+    // Perform soft delete instead of hard delete
+    await db.scrapRate.update({
       where: { id: id },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

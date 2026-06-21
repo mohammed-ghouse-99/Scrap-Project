@@ -9,14 +9,15 @@ datasource db {
   provider = "postgresql"
 }
 model ScrapRate {
-  id        String   @id @default(cuid())
-  name      String   @unique
+  id        String    @id @default(cuid())
+  name      String    @unique
   category  String
   price     Float
-  unit      String   @default("kg")
+  unit      String    @default("kg")
   image     String?
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  deletedAt DateTime? // Nullable field to support soft deletes
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
 }
 
 model Pickup {
