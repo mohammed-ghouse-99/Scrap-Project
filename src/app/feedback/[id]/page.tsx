@@ -151,7 +151,7 @@ export default function FeedbackPage({ params }: { params: Promise<{ id: string 
                 Service Review
               </div>
               <h2 className="text-2xl font-black italic text-white uppercase tracking-tight">
-                MS Steel & Scrap
+                ScrapEarn
               </h2>
             </div>
 

@@ -1,4 +1,4 @@
-const SECRET = process.env.ADMIN_SECRET || "ms_steel_scrap_super_secret_key_9550";
+const SECRET = process.env.JWT_SECRET || process.env.ADMIN_SECRET || "ms_steel_scrap_super_secret_key_9550";
 
 async function sha256(message: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(message);

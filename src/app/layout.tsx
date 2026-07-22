@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "MS Steel & Scrap | Doorstep Scrap Collection in Hyderabad",
+  title: "ScrapEarn | Doorstep Scrap Collection in Hyderabad",
   description: "Sell your scrap the smart way in Hyderabad. Best prices for Newspaper, Plastic, Metal, and E-waste. Instant payment & digital weighing.",
 };
 

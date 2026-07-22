@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       ];
     }
 
-    const [pickups, total] = await Promise.all([
+    const [pickups, total, pendingCount, completedCount, cancelledCount, ratingAggregate] = await Promise.all([
       db.pickup.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -35,6 +35,13 @@ export async function GET(request: Request) {
         take: limit,
       }),
       db.pickup.count({ where }),
+      db.pickup.count({ where: { status: "PENDING" } }),
+      db.pickup.count({ where: { status: "COMPLETED" } }),
+      db.pickup.count({ where: { status: "CANCELLED" } }),
+      db.pickup.aggregate({
+        where: { status: "COMPLETED", rating: { not: null } },
+        _avg: { rating: true }
+      })
     ]);
 
     return NextResponse.json({
@@ -45,6 +52,12 @@ export async function GET(request: Request) {
         limit,
         totalPages: Math.ceil(total / limit),
       },
+      stats: {
+        pendingCount,
+        completedCount,
+        cancelledCount,
+        averageRating: ratingAggregate._avg.rating || 0,
+      }
     });
   } catch (error: any) {
     console.error("[API/PICKUPS] Error fetching pickups:", error);

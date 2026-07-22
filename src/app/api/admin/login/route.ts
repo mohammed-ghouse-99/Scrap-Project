@@ -6,7 +6,8 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { password } = body;
 
-    if (password === "admin9550") {
+    const correctKey = process.env.ADMIN_ACCESS_KEY || "admin9550";
+    if (password === correctKey) {
       const session = await createSession("admin");
       const res = NextResponse.json({ success: true });
       

@@ -69,7 +69,8 @@ export function CommercialSectors() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.05 }}
-              className="group relative bg-white rounded-2xl p-1.5 border border-zinc-100 shadow-sm hover:shadow-md hover:shadow-emerald-900/5 transition-all flex flex-col"
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              className="group relative bg-white rounded-2xl p-1.5 border border-zinc-150/70 shadow-sm hover:shadow-lg hover:border-emerald-500/20 transition-all flex flex-col cursor-pointer"
             >
               <div className="relative h-44 w-full rounded-xl overflow-hidden mb-4 flex-shrink-0">
                 <div className="absolute inset-0 bg-zinc-200">
@@ -87,10 +88,10 @@ export function CommercialSectors() {
               
               <div className="px-3 pb-4 flex-grow flex flex-col">
                 <p className="text-zinc-500 text-xs md:text-sm font-medium mb-4 flex-grow leading-relaxed">{sector.desc}</p>
-                <div className="flex flex-wrap gap-1.5 mt-auto pt-2 border-t border-zinc-50">
+                <div className="flex flex-wrap gap-1.5 mt-auto pt-2 border-t border-zinc-55">
                   {sector.features.map(feature => (
-                    <span key={feature} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[9px] font-black tracking-tight flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                    <span key={feature} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100/50 rounded-lg text-[9px] font-black tracking-tight flex items-center gap-1 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-colors duration-300">
+                      <span className="w-1 h-1 rounded-full bg-emerald-500 group-hover:bg-white transition-colors duration-300"></span>
                       {feature}
                     </span>
                   ))}

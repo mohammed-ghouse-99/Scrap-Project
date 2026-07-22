@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Save, Trash2, RefreshCw, CheckCircle2, AlertCircle, Calendar, MapPin, User, Phone as PhoneIcon, Share2, Star, Search, ChevronLeft, ChevronRight, Clock, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 
@@ -58,6 +58,13 @@ export default function AdminPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const limit = 20;
+
+  const [stats, setStats] = useState({
+    pendingCount: 0,
+    completedCount: 0,
+    cancelledCount: 0,
+    averageRating: 0,
+  });
 
   useEffect(() => {
     const checkSession = async () => {
@@ -138,6 +145,9 @@ export default function AdminPage() {
         setPage(data.pagination.page);
         setTotalPages(data.pagination.totalPages);
         setTotalCount(data.pagination.total);
+        if (data.stats) {
+          setStats(data.stats);
+        }
       }
     } catch (error) {
       console.error("Failed to load pickups:", error);
@@ -229,7 +239,7 @@ export default function AdminPage() {
     }
     const origin = window.location.origin;
     const feedbackUrl = `${origin}/feedback/${pickup.id}`;
-    const message = `Hi ${pickup.name}, thank you for choosing MS Steel & Scrap! Please take 10 seconds to rate your pickup experience here: ${feedbackUrl}`;
+    const message = `Hi ${pickup.name}, thank you for choosing ScrapEarn! Please take 10 seconds to rate your pickup experience here: ${feedbackUrl}`;
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
@@ -271,7 +281,7 @@ export default function AdminPage() {
               Admin Access Gate
             </h2>
             <p className="text-zinc-400 text-xs mt-1 font-semibold">
-              Enter your access key to manage MS Steel & Scrap
+              Enter your access key to manage ScrapEarn
             </p>
           </div>
 
@@ -456,7 +466,7 @@ export default function AdminPage() {
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-black italic text-white uppercase tracking-tight">
-              MS Steel & Scrap <span className="text-emerald-400">Admin</span>
+              ScrapEarn <span className="text-emerald-400">Admin</span>
             </h1>
             <p className="text-zinc-400 mt-1 text-sm font-semibold">
               Manage scrap market rates and view incoming customer bookings.
@@ -658,6 +668,59 @@ export default function AdminPage() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Operational KPI Dashboard */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Card 1: Pending */}
+              <div className="bg-zinc-900/40 border border-zinc-850 p-5 rounded-3xl backdrop-blur-md flex items-center justify-between shadow-lg">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Pending Requests</span>
+                  <span className="text-2xl font-black text-white block">{stats.pendingCount}</span>
+                  <span className="text-[9px] font-bold text-amber-500 block">Requires dispatching</span>
+                </div>
+                <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-amber-400">
+                  <Clock size={20} className="animate-pulse" />
+                </div>
+              </div>
+
+              {/* Card 2: Completed */}
+              <div className="bg-zinc-900/40 border border-zinc-850 p-5 rounded-3xl backdrop-blur-md flex items-center justify-between shadow-lg">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Completed Pickups</span>
+                  <span className="text-2xl font-black text-white block">{stats.completedCount}</span>
+                  <span className="text-[9px] font-bold text-emerald-500 block">Successfully processed</span>
+                </div>
+                <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+
+              {/* Card 3: Cancelled */}
+              <div className="bg-zinc-900/40 border border-zinc-850 p-5 rounded-3xl backdrop-blur-md flex items-center justify-between shadow-lg">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Cancelled Bookings</span>
+                  <span className="text-2xl font-black text-white block">{stats.cancelledCount}</span>
+                  <span className="text-[9px] font-bold text-rose-500 block">Rejected or dropped</span>
+                </div>
+                <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center text-rose-400">
+                  <XCircle size={20} />
+                </div>
+              </div>
+
+              {/* Card 4: Avg Customer Rating */}
+              <div className="bg-zinc-900/40 border border-zinc-850 p-5 rounded-3xl backdrop-blur-md flex items-center justify-between shadow-lg">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Customer Reviews</span>
+                  <span className="text-2xl font-black text-white block">
+                    {stats.averageRating > 0 ? `${Number(stats.averageRating).toFixed(1)} / 5.0` : "No rating"}
+                  </span>
+                  <span className="text-[9px] font-bold text-teal-400 block">Avg. feedback rating</span>
+                </div>
+                <div className="w-12 h-12 bg-teal-500/10 border border-teal-500/20 rounded-2xl flex items-center justify-center text-teal-400">
+                  <Star size={20} className={stats.averageRating > 0 ? "fill-teal-400" : ""} />
+                </div>
+              </div>
+            </div>
+
             {/* Search Bar Block */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-zinc-900/40 border border-zinc-850 p-4 rounded-3xl backdrop-blur-md">
               <div className="relative w-full md:max-w-md">

@@ -48,7 +48,7 @@ export function WhyChooseUs() {
           >
             Why 1,000+ Hyderabadis <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 italic font-black">
-              trust MS Steel & Scrap.
+              trust ScrapEarn.
             </span>
           </motion.h2>
           
@@ -70,13 +70,14 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="flex flex-col items-center text-center p-6 bg-zinc-50/50 border border-zinc-100/50 rounded-2xl shadow-sm hover:shadow-md hover:border-zinc-200/60 transition-all duration-300"
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              className="group flex flex-col items-center text-center p-6 bg-zinc-50/50 border border-zinc-150/70 rounded-2xl shadow-sm hover:shadow-lg hover:border-emerald-500/20 transition-all duration-300 cursor-pointer"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 shadow-sm mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100/50 flex items-center justify-center flex-shrink-0 text-emerald-600 shadow-sm mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
                 <f.icon className="w-5 h-5" />
               </div>
-              <h4 className="font-bold text-base text-zinc-900 mb-2">{f.title}</h4>
-              <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{f.description}</p>
+              <h4 className="font-extrabold text-base text-zinc-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300">{f.title}</h4>
+              <p className="text-zinc-500 text-xs md:text-sm leading-relaxed font-semibold">{f.description}</p>
             </motion.div>
           ))}
         </div>

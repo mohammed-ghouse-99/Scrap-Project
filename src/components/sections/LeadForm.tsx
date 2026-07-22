@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -60,6 +60,20 @@ export function LeadForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [customItem, setCustomItem] = useState("");
+
+  useEffect(() => {
+    const handleSelectType = (e: Event) => {
+      const customEvent = e as CustomEvent<{ name: string }>;
+      if (customEvent.detail && customEvent.detail.name) {
+        setFormData(prev => ({
+          ...prev,
+          type: customEvent.detail.name
+        }));
+      }
+    };
+    window.addEventListener("select-scrap-type", handleSelectType);
+    return () => window.removeEventListener("select-scrap-type", handleSelectType);
+  }, []);
 
   const handleOpenModal = () => {
     const currentItems = formData.type

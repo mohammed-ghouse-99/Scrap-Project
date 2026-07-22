@@ -247,7 +247,13 @@ export function Pricing() {
                           <motion.button 
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center group-hover:bg-emerald-600 transition-colors shadow-sm"
+                            onClick={() => {
+                              const event = new CustomEvent("select-scrap-type", { detail: { name: item.name } });
+                              window.dispatchEvent(event);
+                              document.getElementById("sell-now")?.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center group-hover:bg-emerald-600 transition-colors shadow-sm cursor-pointer border-none"
+                            title={`Book pickup for ${item.name}`}
                           >
                             <ArrowRight size={14} />
                           </motion.button>

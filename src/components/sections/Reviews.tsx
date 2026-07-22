@@ -8,14 +8,14 @@ const reviews = [
     id: 1,
     name: "Cyber Towers.",
     role: "Corporate Office",
-    text: "MS Steel & Scrap handled our IT scrap professionally and provided proper documentation for secure disposal.",
+    text: "ScrapEarn handled our IT scrap professionally and provided proper documentation for secure disposal.",
     rating: 5,
   },
   {
     id: 2,
     name: "Balaji Traders",
     role: "Industrial Plant",
-    text: "We generate tons of metal scrap monthly. MS Steel & Scrap set up dedicated bins and their logistics are flawless. Best rates in Hyderabad.",
+    text: "We generate tons of metal scrap monthly. ScrapEarn set up dedicated bins and their logistics are flawless. Best rates in Hyderabad.",
     rating: 5,
   },
   {

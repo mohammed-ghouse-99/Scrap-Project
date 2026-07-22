@@ -29,9 +29,20 @@ const steps = [
 export function Hero() {
   return (
     <section id="how-it-works" className="relative pt-24 pb-20 md:pt-36 md:pb-24 overflow-hidden bg-zinc-950 text-white">
-      {/* Premium Dark Tech Grid Background */}
+      {/* Premium Human-Centric Hero Background Image */}
       <div 
-        className="absolute inset-0 opacity-10 pointer-events-none"
+        className="absolute inset-0 bg-[url('/images/hero_bg_authentic.png')] bg-cover bg-center pointer-events-none z-0" 
+      />
+      
+      {/* Recykal-Style Gradient Overlay Masks for Rich Text Readability & Tonal Contrast */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-emerald-950/20 pointer-events-none z-0" 
+      />
+      <div 
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/30 to-zinc-950 pointer-events-none z-0" 
+      />
+      <div 
+        className="absolute inset-0 opacity-10 pointer-events-none z-0"
         style={{
           backgroundImage: `radial-gradient(rgba(22, 163, 74, 0.15) 1px, transparent 0), linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 0), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 0)`,
           backgroundSize: '24px 24px, 48px 48px, 48px 48px'
