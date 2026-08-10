@@ -203,7 +203,7 @@ export function Pricing() {
                             </div>
                           );
                         })()}
-                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-zinc-900">
+                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full text-[11px] font-black uppercase tracking-tighter text-zinc-900">
                           {item.unit}
                         </div>
                       </div>
@@ -216,10 +216,10 @@ export function Pricing() {
                         </div>
 
                         {item.name === "Plastic" && (
-                          <div className="mb-2.5 flex flex-wrap gap-1 animate-in fade-in slide-in-from-bottom-1 duration-500">
-                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 w-full mb-0.5">Grades</span>
+                          <div className="mb-2.5 flex flex-wrap gap-1">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 w-full mb-0.5">Grades</span>
                             {[5, 7, 12].map((p, i) => (
-                              <div key={p} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[8px] font-black tracking-tight flex items-center gap-1">
+                              <div key={p} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-black tracking-tight flex items-center gap-1">
                                 <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
                                 T{i + 1}: ₹{p}
                               </div>
@@ -228,12 +228,12 @@ export function Pricing() {
                         )}
 
                         {item.name.trim() === "Washing Machine" && (
-                          <div className="mb-2.5 flex flex-wrap gap-1 animate-in fade-in slide-in-from-bottom-1 duration-500">
-                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 w-full mb-0.5">Types</span>
-                            <div className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[8px] font-black tracking-tight flex items-center gap-1">
+                          <div className="mb-2.5 flex flex-wrap gap-1">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 w-full mb-0.5">Types</span>
+                            <div className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-black tracking-tight flex items-center gap-1">
                               Semi: ₹700
                             </div>
-                            <div className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[8px] font-black tracking-tight flex items-center gap-1">
+                            <div className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-black tracking-tight flex items-center gap-1">
                               Front: ₹900
                             </div>
                           </div>
@@ -241,7 +241,7 @@ export function Pricing() {
                         
                         <div className="flex items-center justify-between mt-auto pt-3 border-t border-zinc-50">
                           <div className="flex flex-col">
-                            <span className="text-zinc-400 text-[8px] font-black uppercase tracking-widest mb-0.5">Rate</span>
+                            <span className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mb-0.5">Rate</span>
                             <span className="text-xl md:text-2xl font-black text-zinc-900 tabular-nums">₹{item.price}</span>
                           </div>
                           <motion.button 

@@ -77,13 +77,13 @@ export function Categories() {
                 }
               }}
             >
-              <Card className="h-full border border-zinc-150/70 shadow-sm group-hover:shadow-lg group-hover:border-emerald-500/20 p-5 rounded-2xl bg-white flex flex-col justify-between transition-all duration-300">
+              <Card className="h-full border border-zinc-200/70 shadow-sm group-hover:shadow-lg group-hover:border-emerald-500/20 p-5 rounded-2xl bg-white flex flex-col justify-between transition-all duration-300">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 bg-emerald-50 border border-emerald-100/50 rounded-xl flex items-center justify-center text-emerald-600 shadow-inner group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
                       <cat.icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${cat.badgeColor}`}>
+                    <span className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${cat.badgeColor}`}>
                       {cat.tag}
                     </span>
                   </div>

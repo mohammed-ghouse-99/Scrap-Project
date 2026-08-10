@@ -8,6 +8,7 @@ import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { CommercialSectors } from "@/components/sections/CommercialSectors";
 import { Reviews } from "@/components/sections/Reviews";
+import { HowItWorks } from "@/components/sections/HowItWorks";
 
 export default function Home() {
   return (
@@ -16,6 +17,8 @@ export default function Home() {
 
       <main className="flex-grow">
         <Hero />
+
+        <HowItWorks />
 
         <div id="categories">
           <Categories />

@@ -217,11 +217,11 @@ export default function FeedbackPage({ params }: { params: Promise<{ id: string 
                     })}
                   </div>
                   <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest mt-2 h-4">
-                    {rating === 5 && "Excellent! ⭐⭐⭐⭐⭐"}
-                    {rating === 4 && "Very Good! ⭐⭐⭐⭐"}
-                    {rating === 3 && "Average! ⭐⭐⭐"}
-                    {rating === 2 && "Poor! ⭐⭐"}
-                    {rating === 1 && "Terrible! ⭐"}
+                    {rating === 5 && "Excellent!"}
+                    {rating === 4 && "Very Good!"}
+                    {rating === 3 && "Average!"}
+                    {rating === 2 && "Poor!"}
+                    {rating === 1 && "Terrible!"}
                   </span>
                 </div>
 

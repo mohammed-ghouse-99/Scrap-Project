@@ -28,7 +28,7 @@ const steps = [
 
 export function Hero() {
   return (
-    <section id="how-it-works" className="relative pt-24 pb-20 md:pt-36 md:pb-24 overflow-hidden bg-zinc-950 text-white">
+    <section className="relative pt-24 pb-20 md:pt-36 md:pb-24 overflow-hidden bg-zinc-950 text-white">
       {/* Premium Human-Centric Hero Background Image */}
       <div 
         className="absolute inset-0 bg-[url('/images/hero_bg_authentic.png')] bg-cover bg-center pointer-events-none z-0" 
@@ -68,7 +68,7 @@ export function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="text-emerald-400 font-black uppercase tracking-widest text-[9px]">Serving All of Hyderabad</span>
+              <span className="text-emerald-400 font-black uppercase tracking-widest text-xs">Serving All of Hyderabad</span>
             </motion.div>
 
             <motion.h1
@@ -143,7 +143,7 @@ export function Hero() {
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-xs font-black uppercase tracking-widest text-zinc-300">3 Steps to Cash</span>
                 </div>
-                <span className="text-[9px] text-zinc-500 font-extrabold uppercase tracking-widest">MS PROCESS</span>
+                <span className="text-xs text-zinc-500 font-extrabold uppercase tracking-widest">MS PROCESS</span>
               </div>
 
               {/* Timeline Container */}

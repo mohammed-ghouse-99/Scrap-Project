@@ -71,7 +71,7 @@ export function WhyChooseUs() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              className="group flex flex-col items-center text-center p-6 bg-zinc-50/50 border border-zinc-150/70 rounded-2xl shadow-sm hover:shadow-lg hover:border-emerald-500/20 transition-all duration-300 cursor-pointer"
+              className="group flex flex-col items-center text-center p-6 bg-zinc-50/50 border border-zinc-200/70 rounded-2xl shadow-sm hover:shadow-lg hover:border-emerald-500/20 transition-all duration-300 cursor-pointer"
             >
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100/50 flex items-center justify-center flex-shrink-0 text-emerald-600 shadow-sm mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
                 <f.icon className="w-5 h-5" />

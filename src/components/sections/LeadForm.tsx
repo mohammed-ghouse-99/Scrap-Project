@@ -279,7 +279,7 @@ export function LeadForm() {
                     <button
                       type="button"
                       onClick={handleOpenModal}
-                      className="absolute right-2 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-250 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
+                      className="absolute right-2 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
                     >
                       Select
                     </button>
@@ -384,7 +384,7 @@ export function LeadForm() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-zinc-650 flex items-center justify-center transition-colors cursor-pointer text-xl font-bold"
+                  className="w-8 h-8 rounded-full bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 flex items-center justify-center transition-colors cursor-pointer text-xl font-bold"
                 >
                   ×
                 </button>
@@ -445,7 +445,7 @@ export function LeadForm() {
                   {/* Selected items indicator chips */}
                   {selectedItems.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-zinc-100">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 w-full mb-1">Selected Chips</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 w-full mb-1">Selected Chips</span>
                       {selectedItems.map((item) => (
                         <span
                           key={item}
